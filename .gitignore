@@ -160,10 +160,7 @@ cython_debug/
 #.idea/
 
 *.env
-all_df.csv
-engineered_df.csv
-news_df.csv
-scaled_df.csv
+*.csv
 *.ipynb
 *.png
 *.json
@@ -176,3 +173,4 @@ bert_finetune
 bert_tokenizer
 *.safetensors
 *.txt
+*.jar
