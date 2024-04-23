@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from collections import OrderedDict
+from GeneralModel import GeneralModel
 
 class ConvBlock(nn.Module):
     def __init__(self, kernel_size, max_pool_size, in_channel, out_channel):
@@ -8,30 +9,30 @@ class ConvBlock(nn.Module):
         self.convblock = nn.Sequential(
             nn.Conv2d(in_channel, out_channel, kernel_size, padding="same"),
             nn.BatchNorm2d(out_channel),
+            #nn.ELU(),
+            #nn.Dropout(0.5),
             nn.MaxPool2d(kernel_size=max_pool_size)
         )
     def forward(self, X):
         out = self.convblock(X)
+        #print(out.shape)
         return self.convblock(X)
 
-class CNN(nn.Module):
+class CNN(GeneralModel):
 
     def __init__(self, dummy_input, device, kernel_sizes = [(7, 5), (5, 3), (3, 1)],
                     max_pool_sizes = [(7, 5), (5, 3), (3, 1)],
-                    filter_sizes = [15, 30, 60]):
+                    filter_sizes = [15, 30, 60], model_name = "CNN"):
         """Assume the dummy input shape has (N, T, C)"""
-        super().__init__()
+        super().__init__(model_name)
 
         N, T, C = dummy_input.shape
         reshaped_dummy_input = dummy_input.unsqueeze(1)
-
-        
         sequantial_block = OrderedDict()
         for i, (kernel_size, max_pool_size, filter_size) in enumerate(zip(kernel_sizes, max_pool_sizes, filter_sizes)):
             if i == 0:
                 sequantial_block[f'ConvBlock-{i}'] = ConvBlock(
                     kernel_size, max_pool_size, in_channel=1, out_channel=filter_size
-
                 )
                 continue
             sequantial_block[f'ConvBlock-{i}'] = ConvBlock(
@@ -55,4 +56,4 @@ class CNN(nn.Module):
         X = X.unsqueeze(1) 
         out = self.sequantial_block(X)
         out = self.linear_block(out)
-        return out
+        return out       

@@ -2,19 +2,40 @@ import torch
 import matplotlib.pyplot as plt
 from pathlib import Path
 import json
-import numpy as np 
+import numpy as np
+
 
 class Trainer():
+    """Train the model and save the model with best validation loss"""
 
-    def __init__(self, model, loss = torch.nn.MSELoss(), save_dir = "."):
+    def __init__(self, model, save_dir, loss = torch.nn.MSELoss()):
+        # assume the model is the class of GeneralModel
         self.model = model
         self.train_loss_lst, self.val_loss_lst = [], []
         self.min_loss = np.inf
         self.save_dir = Path(save_dir)
         self.loss = loss
 
+        # check the save dir 
+        if not self.save_dir.exists():
+            raise FileNotFoundError("the save directory is not found")
+
+        # initialize the model directory under the report 
+        model_dir : Path = self.save_dir / model.get_model_name()
+        if not model_dir.exists():
+            model_dir.mkdir(parents =True)
+
+        # intialize the model save filenane here
+        self.names  = {
+            "weight" : model_dir / "weight.pth", 
+            "loss" : model_dir / "loss.json",
+            "prediction" : model_dir / "prediction.json",
+            "plot" : model_dir/ "comparison_plot.png"
+        }
+
     def train_model(self, train_loader, val_loader, num_epochs = 200, 
                     lr = 1e-3, print_every = 10, if_continue = False):
+        """Train the model and save the model with best validation loss in the directory"""
         criterion = self.loss
         optimizer = torch.optim.Adam(self.model.parameters(), lr=lr) 
         if not if_continue:
@@ -43,7 +64,7 @@ class Trainer():
                 avg_val_loss = total_val_loss / len(val_loader)
                 if avg_val_loss < self.min_loss:
                     self.min_loss = avg_val_loss
-                    self.save_model(self.save_dir)
+                    self.save_model()
                     print("Save model with val loss: ", avg_val_loss)
                 self.val_loss_lst.append(avg_val_loss)
                 
@@ -53,7 +74,9 @@ class Trainer():
 
     def get_best_model(self):
         """Return the model"""
-        self.model.load_state_dict(torch.load(self.save_dir / "model_weight.pth"))
+        self.model.load_state_dict(
+            torch.load(self.names["weight"])
+        )
         return self.model
     
     def get_loss(self):
@@ -62,21 +85,18 @@ class Trainer():
         """
         return self.train_loss_lst, self.val_loss_lst
     
-    def save_model(self, save_dir : Path):
+    def save_model(self):
         """Save the train loss and validation loss to the save_dir
 
         Args:
             save_dir (_type_): _description_
         """
-        if not save_dir.exists():
-            raise FileNotFoundError("Save directory is not found")
-        save_model_weight_path = save_dir / "model_weight.pth"
         torch.save(
             self.model.state_dict(), 
-            str(save_model_weight_path)
+            self.names["weight"]
         )
     
-    def save_loss(self, save_dir : Path):
+    def save_loss(self):
         """save the loss list into the save directory
 
         Args:
@@ -87,19 +107,19 @@ class Trainer():
             "train_loss": self.train_loss_lst,
             "valid_loss": self.val_loss_lst
         }
-        with open(save_dir / 'loss.json', 'w') as file:
+        with open(self.names["loss"], 'w') as file:
             json.dump(loss_data, file)
     
-    def save_prediction(self, save_dir : Path, actual_arr : list, predict_arr : list):
+    def save_prediction(self, actual_arr : list, predict_arr : list):
         """Save the prediction at save_dir """
         prediction_data = {
             "actual_list" : list(actual_arr),
             "predict_list" : list(predict_arr)
         }
-        with open(save_dir / "predict.json", "w") as file:
+        with open(self.names["prediction"], "w") as file:
             json.dump(prediction_data, file)
 
-    def save_plot(self, save_dir : Path, actual_arr : np.array, predict_arr : np.array):
+    def save_plot(self, actual_arr : np.array, predict_arr : np.array):
         """Save the plot into the directo·ry"""
         # Assuming predict_arr and actual_arr are your data arrays
         plt.figure(figsize=(14, 7))  # Bigger figure size
@@ -112,18 +132,16 @@ class Trainer():
         plt.title('Comparison of Predictions and Actual Values')
         plt.legend()
         plt.grid(True)
-        filename = "comparison_plot.png"  # You can customize the filename as needed
-        filepath = save_dir / filename  # Constructs the full path
-        plt.savefig(filepath)
+        
+        plt.savefig(self.names["plot"])
         plt.close()  
 
 
-    def save(self, save_dir : Path, actual_arr : np.array, predict_arr : np.array, ):
+    def save(self, actual_arr : np.array, predict_arr : np.array, ):
         """Save the prediction and actual array"""
-        self.save_loss(save_dir)
-        self.save_model(save_dir)
-        self.save_prediction(save_dir, actual_arr, predict_arr)
-        self.save_plot(save_dir, actual_arr, predict_arr)
+        self.save_loss()
+        self.save_prediction(actual_arr, predict_arr)
+        self.save_plot(actual_arr, predict_arr)
 
     
     
