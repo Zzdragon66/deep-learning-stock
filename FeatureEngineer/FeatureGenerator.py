@@ -45,17 +45,17 @@ class FeatureGenerator():
             self.db_config["db_user"],
             self.db_config["db_password"]
         )
+        MEAN_COLS = ["volume", "n_transactions"]
+        STD_COLS = ["volume", "curr_price", "high_price", "low_price", "n_transactions"]
         df = pd.read_sql(query_str, db_engine)
         del df["cnt_index"]
-        # generate the miving avg features 
-        feature_cols = list(filter(lambda x:x!="utc_timestamp" , [val for val in df.columns]))
-        col_names = [col + f"_avg{points}" for col in feature_cols]
-        new_cols = df.loc[:, feature_cols].rolling(window=points).mean()
+        col_names = [col + f"_avg{points}" for col in MEAN_COLS]
+        new_cols = df.loc[:, MEAN_COLS].rolling(window=points).mean()
         new_cols.columns=col_names
         new_df = pd.concat([df, new_cols], axis=1)
         # moving std
-        col_names = [col + f"_std{points}" for col in feature_cols]
-        new_cols = df.loc[:, feature_cols].rolling(window=points).std()
+        col_names = [col + f"_std{points}" for col in STD_COLS]
+        new_cols = df.loc[:, STD_COLS].rolling(window=points).std()
         new_cols.columns=col_names
         new_df = pd.concat([new_df, new_cols], axis=1)
         new_df = new_df.dropna() 

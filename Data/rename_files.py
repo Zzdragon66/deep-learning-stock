@@ -27,7 +27,7 @@ def rename_files(dir : str):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dir", type=str)
+    parser.add_argument("--dir", type=str, required=True)
     args = parser.parse_args()
     rename_files(args.dir)
 
