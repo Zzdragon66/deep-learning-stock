@@ -71,7 +71,8 @@ class MultiNumpyGenerator():
         new_df = pd.concat(results, axis = 0).sort_values(by = "index")
         y = new_df["y"].values
         # reshape the columns in to X
-        feature_cols = list(filter(lambda x: x !="y" and x != "index",new_df.columns))
+        feature_cols = list(filter(lambda x: "y" not in x and x != "index",new_df.columns))
+
         n_features = int(len(feature_cols) / 1000)
         X = new_df.loc[:, feature_cols].values
         X = X.reshape(-1, 1000, n_features)
@@ -80,9 +81,24 @@ class MultiNumpyGenerator():
         np.save (Path(self.data_dir) / "single-X.npy", X)
         np.save(Path(self.data_dir) / "single-y.npy", y) 
 
-    def generate_multi_numpy(self):
-        #TODO(Allen): generate the y sequence
-        pass
+    def generate_multi_numpy(self, n_outputs = 5):
+        y_cols = [f"y{i}" for i in range(n_outputs)]
+        workers = [NumpyGenerator(self.data_dir, file_name) for file_name in self.file_names]
+        with ProcessPoolExecutor(max_workers=6) as executor:
+            futures = [executor.submit(worker.get_df) for worker in workers]
+            results = [future.result() for future in futures]
+        new_df = pd.concat(results, axis = 0).sort_values(by = "index")
+        y = new_df.loc[:, y_cols].values
+        # reshape the columns in to X
+        feature_cols = list(filter(lambda x: "y" not in x and x != "index",new_df.columns))
+        print(len(feature_cols))
+        n_features = int(len(feature_cols) / 1000)
+        X = new_df.loc[:, feature_cols].values
+        X = X.reshape(-1, 1000, n_features)
+        print(X.shape)
+        # store X and y
+        np.save (Path(self.data_dir) / "multi-X.npy", X)
+        np.save(Path(self.data_dir) / "multi-y.npy", y) 
 
 def main():
     parser = argparse.ArgumentParser("npy generation")
