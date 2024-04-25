@@ -10,7 +10,7 @@ This repository is dedicated to a deep learning project focused on predicting st
 
 ## Project architecture
 
-![](./readme/dl-stock.png)
+![](./readme_resource/dl-stock.png)
 
 ### Tools and Libraries
 

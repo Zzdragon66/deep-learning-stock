@@ -162,7 +162,8 @@ cython_debug/
 *.env
 *.csv
 *.ipynb
-*.png
+comparison.png
+comparison_plot.png
 *.json
 *.pth
 *.save
