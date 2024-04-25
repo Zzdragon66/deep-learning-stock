@@ -21,7 +21,7 @@ class CnnLstm(GeneralModel):
 
     def __init__(self, dummy_input, device, kernel_sizes = [(1, 1)],
                     max_pool_sizes = [(1, 1)],
-                    filter_sizes = [15], hidden_size = 50, model_name = "CLSTM"):
+                    filter_sizes = [15], hidden_size = 50, model_name = "CLSTM", out_size = 1):
         
         """CNN-LSTM model
         Dummy input dimension : N, T, C
@@ -51,7 +51,7 @@ class CnnLstm(GeneralModel):
         
 
         self.linear_block = nn.Sequential(
-            nn.Linear(hidden_size ,1) 
+            nn.Linear(hidden_size ,out_size) 
         )
         self.linear_block.to(device)
 

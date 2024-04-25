@@ -22,7 +22,7 @@ class CNN(GeneralModel):
 
     def __init__(self, dummy_input, device, kernel_sizes = [(7, 5), (5, 3), (3, 1)],
                     max_pool_sizes = [(7, 5), (5, 3), (3, 1)],
-                    filter_sizes = [15, 30, 60], model_name = "CNN"):
+                    filter_sizes = [15, 30, 60], model_name = "CNN", out_size = 1):
         """Assume the dummy input shape has (N, T, C)"""
         super().__init__(model_name)
 
@@ -46,7 +46,7 @@ class CNN(GeneralModel):
         N, linear_input_shape = self.sequantial_block(reshaped_dummy_input).shape
 
         self.linear_block = nn.Sequential(
-            nn.Linear(linear_input_shape, 1), 
+            nn.Linear(linear_input_shape, out_size), 
             # nn.ELU(),
             # nn.Linear(50, 1)
         )

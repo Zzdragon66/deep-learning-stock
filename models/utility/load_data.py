@@ -63,3 +63,8 @@ def load_single_data(data_dir : Path, sub_dir : Path):
     X = np.load(data_dir / sub_dir / "single-X.npy")
     y = np.load(data_dir / sub_dir / "single-y.npy") 
     return X,y 
+
+def load_multi_date(data_dir : Path, sub_dir : Path):
+    X = np.load(data_dir / sub_dir / "multi-X.npy")
+    y = np.load(data_dir / sub_dir / "multi-y.npy") 
+    return X,y 
