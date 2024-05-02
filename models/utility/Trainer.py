@@ -48,7 +48,13 @@ class Trainer():
             for X_batch, y_batch in train_loader:
                 optimizer.zero_grad()
                 output = self.model(X_batch)
-                loss = criterion(output, y_batch.reshape(output.shape))
+                # adjust for the qunatile loss
+                if len(y_batch.shape) == 1:
+                    y_batch = y_batch.unsqueeze(-1)
+                if output.shape[1] > 1:
+                    y_batch = y_batch.expand(-1, output.shape[1])
+                # calculate the loss
+                loss = criterion(output, y_batch)
                 loss.backward()
                 optimizer.step() 
                 total_loss += loss.item()
@@ -60,7 +66,12 @@ class Trainer():
             with torch.no_grad():
                 for X_batch, y_batch in val_loader:
                     output = self.model(X_batch)
-                    total_val_loss += criterion(output, y_batch.reshape(output.shape)).item()
+                    # adjust for the qunatile loss
+                    if len(y_batch.shape) == 1:
+                        y_batch = y_batch.unsqueeze(-1)
+                    if output.shape[1] > 1:
+                        y_batch = y_batch.expand(-1, output.shape[1])
+                    total_val_loss += criterion(output, y_batch).item()
                 avg_val_loss = total_val_loss / len(val_loader)
                 if avg_val_loss < self.min_loss:
                     self.min_loss = avg_val_loss
