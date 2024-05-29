@@ -8,9 +8,6 @@ class ConvBlock(nn.Module):
         super().__init__()
         self.convblock = nn.Sequential(
             nn.Conv2d(in_channel, out_channel, kernel_size, padding=0),
-            #nn.BatchNorm2d(out_channel),
-            #nn.ELU(),
-            #nn.Dropout(0.5),
             nn.MaxPool2d(kernel_size=max_pool_size)
         )
     def forward(self, X):
