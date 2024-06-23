@@ -36,24 +36,24 @@ We scrape the high-frequency data with one-minute interval about the S&P 500 ETF
 
 To generate the training data, we use spark to perform distributed data generation with output corresponds to following feature with order:
 
-* `n_transactions_std15`: the number of transactions with 15 min standard deviation
-* `low_price_std15`: the low price standard 
-* `high_price_std15`
-* `curr_price_std15`
-* `volume_std15`
-* `n_transactions_avg15`
-* `volume_avg15`
-* `rsi_value`
-* `macd_hist`
-* `macd_sig`
-* `macd_val`
-* `ema_value`
-* `sma_value`
-* `n_transactions`
-* `low_price`
-* `high_price`
-* `curr_price`
-* `volume`
+1. `n_transactions_std15`: the number of transactions with 15 min standard deviation
+2. `low_price_std15`: the low price standard 15 mins  
+3. `high_price_std15`
+4. `curr_price_std15`
+5. `volume_std15`
+6. `n_transactions_avg15`
+7. `volume_avg15`
+8. `rsi_value`
+9. `macd_hist`
+10. `macd_sig`
+11. `macd_val`
+12. `ema_value`
+13. `sma_value`
+14. `n_transactions`
+15. `low_price`
+16. `high_price`
+17. `curr_price`
+18. `volume`
 
 ### Deep learning models 
 
