@@ -19,7 +19,7 @@ class StockDataSraper():
     """This is a stockscraper. Multi-process data scraper"""
     def __init__(self, start_time : str, end_time : str, api : str, 
                 db_name : str, db_user : str, db_password : str,
-                 n_proccesses = 12):
+                 n_proccesses = 10):
         self.start_time = date_to_time(start_time)
         self.end_time = date_to_time(end_time)
         self.db_config = {

@@ -48,8 +48,13 @@ def generate_trading_time(cur_date : datetime):
     return start_timestamp, end_timestamp
 
 class DataScrapeWorker():
-    def __init__(self, start_time : str, end_time : str, api : str, 
-                db_name : str, db_user : str, db_pwd : str):
+    def __init__(self, 
+                 start_time : str, 
+                 end_time : str, 
+                 api : str, 
+                db_name : str, 
+                db_user : str, 
+                db_pwd : str):
         self.start_time = date_to_time(start_time)
         self.end_time = date_to_time(end_time)
         self.api = api
@@ -121,19 +126,23 @@ class DataScrapeWorker():
         print(f"{cur_date} Finish scraping EMA data")
 
         # Scrape the macd
-        while True:
-            macd_url = MACD_URL.format(start_time=start_time, end_time=end_time, api_key=self.api)
-            macd_response = requests.get(macd_url, timeout=TIMEOUT)
-            macd_results = json.loads(macd_response.text)
-            if "values" not in macd_results["results"]:
-                continue
-            break
-        macd_df = pd.DataFrame(macd_results["results"]["values"])
-        macd_df.columns = ["utc_timestamp", "macd_val", "macd_sig", "macd_hist"]
-        macd_df = macd_df.groupby("utc_timestamp").mean().reset_index()
-        macd_df = macd_df.sort_values(by="utc_timestamp").reset_index(drop=True)
-        df = df.merge(macd_df, on="utc_timestamp", how="left") 
-        print(f"{cur_date} Finish scraping MACD data")
+        try:
+            while True:
+                macd_url = MACD_URL.format(start_time=start_time, end_time=end_time, api_key=self.api)
+                macd_response = requests.get(macd_url, timeout=TIMEOUT)
+                macd_results = json.loads(macd_response.text)
+                if "values" not in macd_results["results"]:
+                    continue
+                break
+            macd_df = pd.DataFrame(macd_results["results"]["values"])
+            macd_df.columns = ["utc_timestamp", "macd_val", "macd_sig", "macd_hist"]
+            macd_df = macd_df.groupby("utc_timestamp").mean().reset_index()
+            macd_df = macd_df.sort_values(by="utc_timestamp").reset_index(drop=True)
+            df = df.merge(macd_df, on="utc_timestamp", how="left") 
+            print(f"{cur_date} Finish scraping MACD data")
+        except e:
+            print("Error on MACD")
+            raise NotImplementedError
 
         # Scrape the RSI
         while True:
@@ -149,6 +158,9 @@ class DataScrapeWorker():
         rsi_df = rsi_df.sort_values(by="utc_timestamp").reset_index(drop=True)
         df = df.merge(rsi_df, on="utc_timestamp", how="left") 
         print(f"{cur_date} Finish scraping RSI data")
+        
+        
+
 
         #utc_times = df["utc_timestamp"]
 
@@ -202,7 +214,7 @@ class DataScrapeWorker():
         # dollar_df = pd.DataFrame(rows)
         # df = df.merge(dollar_df, on="utc_timestamp", how="left")
         # print(f"{cur_date} Finish scraping Dollar data")
-        return df
+        return df.dropna()
     
     def scrape_days(self):
         """Scrape the stock in the interval [self.start-time, self.end-time]"""
@@ -213,12 +225,13 @@ class DataScrapeWorker():
         all_df = pd.DataFrame([], columns=DICT_MAPPING.values())
         while cur_datetime <= self.end_time:
             df = self.scrape_single_day(cur_datetime)
-            if df is not None:
-                all_df = pd.concat([all_df, df], ignore_index = True) if df is not None else df
+            if df is not None and len(df) > 0:
+                all_df = pd.concat([all_df, df], ignore_index = True)
             #update 
             cur_datetime += timedelta(days=1)
-        
-        self.db_insert(all_df) # insert data into database
+        # make sure the datafram is not None
+        if all_df is not None and len(all_df) > 0:
+            self.db_insert(all_df) # insert data into database
 
     def db_insert(self, df : pd.DataFrame):
         """Insert the data into the database
@@ -239,7 +252,7 @@ class DataScrapeWorker():
                     index = False,
                     if_exists = "append",
                     method = "multi",
-                    chunksize=1000
+                    chunksize=500
                 )
         except Exception as e:
             print("Error during insertion: ", e)
