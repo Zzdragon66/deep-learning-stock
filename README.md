@@ -59,7 +59,13 @@ To generate the training data, we use spark to perform distributed data generati
 
 TODO
 
+## Run the project
 
+### TODO: Change this
+
+```shell
+python DataScraper.py --start_date 2023-01-01 --end_date 2024-03-15 --api api_key
+```
 
 ## License
 
