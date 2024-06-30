@@ -4,10 +4,6 @@ This repository is dedicated to a deep learning project focused on predicting st
 
 ## Note: This project is still under construction. 
 
-## Research Paper 
-
-[Paper](./paper.pdf)
-
 ## Project architecture
 
 ![](./readme_resource/dl-stock.png)
