@@ -160,8 +160,6 @@ class DataScrapeWorker():
         print(f"{cur_date} Finish scraping RSI data")
         
         
-
-
         #utc_times = df["utc_timestamp"]
 
         # Add the news in the df

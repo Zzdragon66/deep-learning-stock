@@ -59,6 +59,15 @@ To generate the training data, we use spark to perform distributed data generati
 
 TODO
 
+## Project Usage
+
+### Installment
+
+TODO
+
+### Basic Usage
+
+#### Initialize the Database system
 
 
 ## License

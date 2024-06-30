@@ -1,5 +1,4 @@
 .PHONY: SCRAPE_DATA
-include .env
 
 
 ScrapeDataDir := DataScrape
@@ -11,6 +10,6 @@ DB_PWD := stock
 DB_NAME := stock
 
 INIT_DB:
-
+	echo $(DB_USER)
 
 SCRAPE_DATA:
