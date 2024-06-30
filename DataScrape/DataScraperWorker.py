@@ -140,7 +140,7 @@ class DataScrapeWorker():
             macd_df = macd_df.sort_values(by="utc_timestamp").reset_index(drop=True)
             df = df.merge(macd_df, on="utc_timestamp", how="left") 
             print(f"{cur_date} Finish scraping MACD data")
-        except e:
+        except:
             print("Error on MACD")
             raise NotImplementedError
 
