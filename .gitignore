@@ -175,3 +175,4 @@ bert_tokenizer
 *.safetensors
 *.txt
 *.jar
+stock_env
